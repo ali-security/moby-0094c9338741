@@ -191,6 +191,18 @@ jobs:
           else
             go test -mod=vendor -count=1 -short -timeout 30m ./pkg/authorization/... ./plugin/... $COMMON_PKGS
           fi
+      -
+        name: Test containerfs scoping and host-side decompression (linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          go test -mod=vendor -count=1 -short -v -timeout 10m -tags "netgo journald" -run 'TestCreateIfNotExists|TestOpenMountTarget|TestContainerExtractToDirDecompressesOnHost|TestExtractDecompressionHelperNeverRunsInContainerFS' ./daemon/
+      -
+        name: Vet daemon and integration packages (linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          go vet -mod=vendor -tags "netgo journald" ./daemon/ ./integration/container/
 
   seal-module-zip:
     runs-on: ubuntu-24.04
